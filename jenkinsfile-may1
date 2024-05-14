@@ -1,47 +1,30 @@
-pipline{
-
+pipeline{
     tools{
-
-        maven  'maven3.9.6'
+        'maven3.9.6'
     }
-
     agent  any
-
-    environment  {
-
-        registry = "405200097880.dkr.ecr.us-east-1.amazonaws.com/april30"
+    environment{
+        registry "405200097880.dkr.ecr.us-east-1.amazonaws.com/april30"
     }
-
-    stages {
-
+    stages{
         stage('checkoutfromscm'){
             steps{
-            checkout scmGit(branches: [[name: '*/may1']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Chidozieugwu/nextcloud-application-docker-pipeline.git']])
+                checkout scmGit(branches: [[name: '*/may1']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Chidozieugwu/nextcloud-application-docker-pipeline.git']])
+            }
         }
-    }
-
-        stage ('Build Image'){
-
+        stage('Build Image'){
             steps{
-                script {
-                    dockerImage = docker.build registry
-                    dockerImage.tag("$BUILD_NUMBER")
+                dockerImage = docker.build registry
+                dockerImage.tag("$BUILD_NUMBER")
             }
         }
     }
-
-        stage('PUSH TO REGISTRY'){
-            steps {
-                script {
-                    sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 405200097880.dkr.ecr.us-east-1.amazonaws.com'
-                    sh 'docker push 405200097880.dkr.ecr.us-east-1.amazonaws.com/april30:$BUILD_NUMBER'
-
+    stage('PUSH TO REGISTRY'){
+        steps{
+            script{
+                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 405200097880.dkr.ecr.us-east-1.amazonaws.com"
+                sh "docker push april30:latest 405200097880.dkr.ecr.us-east-1.amazonaws.com/april30:latest"
             }
         }
     }
-
-
-}
-
-
 }
